@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Kotlin App</string>
+    <string name="mapboxKey">pk.eyJ1IjoibWFyY29zeW0iLCJhIjoiY2pmdjhpdjdxMGRjdzJ4cnZ4N2x6OWJvcSJ9.ymaYqD4-IZ0vJl0j_glhAg</string>
+
+</resources>
