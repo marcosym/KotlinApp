@@ -77,11 +77,6 @@ Class LIVE LOCATION initialized
 
     }
 
-    override fun onResume() {
-        super.onResume()
-        mapView.onResume()
-    }
-
     override fun onPause() {
         super.onPause()
         mapView.onPause()
@@ -97,11 +92,6 @@ Class LIVE LOCATION initialized
         mapView.onSaveInstanceState(outState)
 
 
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        mapView.onLowMemory()
     }
 
     override fun onDestroy() {
