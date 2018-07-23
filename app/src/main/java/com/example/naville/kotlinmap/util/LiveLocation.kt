@@ -2,31 +2,55 @@ package com.example.naville.kotlinmap.util
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import android.util.Log
+import com.google.android.gms.location.*
 import com.mapbox.mapboxsdk.geometry.LatLng
+
 
 @SuppressLint("MissingPermission")
 class LiveLocation {
 
+
+    /*
+     * Companion object = Static
+     */
     companion object {
 
+        /*
+         * LatLng object : currentPosition (get your current position)
+         * LocationRequest object: it requests the current location non-stop
+         */
         var currentPosition: LatLng? = null
+        var locationRequest: LocationRequest? = null
 
-        fun currentLocation(activity: Activity) {
+
+
+        /*
+         * Get user's current location through FusedLocationClient
+         */
+        fun updatedLocation(activity: Activity) {
 
             val fusedLocationProviderClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity)
 
-            fusedLocationProviderClient.lastLocation.addOnCompleteListener(activity,
-                    {
-                        it.isComplete
-                        it.result
+            locationRequest = LocationRequest()
+                    .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                    .setInterval(1000)
+                    .setFastestInterval(1000)
 
-                        currentPosition = LatLng(it.result.latitude, it.result.longitude)
-                        println("Current location: " + it.result.latitude + " : " + it.result.longitude)
-                        println("Current location (LAT/LNG): " + currentPosition.toString())
+            fusedLocationProviderClient.requestLocationUpdates(locationRequest,
+                    object : LocationCallback() {
+                        override fun onLocationResult(locationResult: LocationResult?) {
+                            for (location in locationResult!!.locations) {
+                                currentPosition = LatLng(location.latitude, location.longitude)
 
-                    })
+                                Log.i("Current location: ", currentPosition.toString())
+                            }
+                        }
+                    }, null)
         }
+
     }
+
+
 }
+
