@@ -8,7 +8,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 
 
 @SuppressLint("MissingPermission")
-class LiveLocation {
+class GPS {
 
 
     /*
@@ -24,11 +24,10 @@ class LiveLocation {
         var locationRequest: LocationRequest? = null
 
 
-
         /*
          * Get user's current location through FusedLocationClient
          */
-        fun updatedLocation(activity: Activity) {
+        fun liveLocation(activity: Activity) {
 
             val fusedLocationProviderClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity)
 

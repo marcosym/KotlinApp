@@ -56,6 +56,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Email"
+                    android:inputType="textWebEmailAddress"
+                    android:maxLines="1"
                     android:textColor="#FFFFFF"
                     android:textColorHint="#FFFFFF" />
             </android.support.design.widget.TextInputLayout>
@@ -75,12 +77,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Password"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
                     android:textColor="#FFFFFF"
                     android:textColorHint="#FFFFFF" />
             </android.support.design.widget.TextInputLayout>
 
             <Button
-                android:id="@+id/btnLogin"
+                android:id="@+id/btnProceed"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
