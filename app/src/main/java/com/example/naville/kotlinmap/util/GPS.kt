@@ -6,10 +6,8 @@ import android.util.Log
 import com.google.android.gms.location.*
 import com.mapbox.mapboxsdk.geometry.LatLng
 
-
 @SuppressLint("MissingPermission")
 class GPS {
-
 
     /*
      * Companion object = Static
@@ -22,7 +20,6 @@ class GPS {
          */
         var currentPosition: LatLng? = null
         var locationRequest: LocationRequest? = null
-
 
         /*
          * Get user's current location through FusedLocationClient
@@ -47,7 +44,6 @@ class GPS {
                         }
                     }, null)
         }
-
     }
 
 

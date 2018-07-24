@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Kotlin App</string>
-    <string name="googlePlacesKey"></string>
+    <string name="googlePlacesKeyServer">AIzaSyDpNBOWoNDBHdbQqPMwNb6D7BAZA0-ZTmU</string>
+    <string name="googlePlacesKeyAndroidApps">AIzaSyDbpMComqrVHHDz5yAxmM8NU91NazSrycA</string>
+    <string name="googlePlacesKeyAndroidNone">AIzaSyCD2aOpVTzuKeMAvFZzvFQWUEpsBbS7R9k</string>
     <string name="mapboxKey">pk.eyJ1IjoibWFyY29zeW0iLCJhIjoiY2pmdjhpdjdxMGRjdzJ4cnZ4N2x6OWJvcSJ9.ymaYqD4-IZ0vJl0j_glhAg</string>
     <string name="login">Login</string>
     <string name="proceed">Proceed</string>

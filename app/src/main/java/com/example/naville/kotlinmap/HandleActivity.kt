@@ -21,7 +21,7 @@ class HandleActivity : AppCompatActivity() {
         lottieAnimationView!!.playAnimation()
 
         Timer().schedule(5000){
-            startActivity(Intent(applicationContext, HandleActivity::class.java))
+            startActivity(Intent(applicationContext, MainActivity::class.java))
             finish()
         }
 

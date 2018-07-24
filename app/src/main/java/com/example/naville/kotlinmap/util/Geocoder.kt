@@ -34,7 +34,7 @@ class Geocoder {
             if (address != null) {
                 addressLatGeocoded = address[0].latitude
                 addressLngGeocoded = address[0].longitude
-                println("Geocoder Reverse: $addressLatGeocoded + $addressLngGeocoded")
+                println("Geocoder Reverse: $addressLatGeocoded / $addressLngGeocoded")
             }
 
         }
