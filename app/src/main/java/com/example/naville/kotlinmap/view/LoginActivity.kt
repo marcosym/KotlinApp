@@ -6,6 +6,7 @@ import android.support.design.widget.TextInputEditText
 import android.support.v7.app.AppCompatActivity
 import android.widget.Button
 import android.widget.TextView
+import com.example.naville.kotlinmap.HandleActivity
 import com.example.naville.kotlinmap.MainActivity
 import com.example.naville.kotlinmap.R
 import com.example.naville.kotlinmap.util.Fonts
@@ -29,7 +30,8 @@ class LoginActivity : AppCompatActivity() {
 //        LoginPres
 
         btnProceed!!.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
+//            startActivity(Intent(this, MainActivity::class.java))
+            startActivity(Intent(this, HandleActivity::class.java))
             finish()
         }
 

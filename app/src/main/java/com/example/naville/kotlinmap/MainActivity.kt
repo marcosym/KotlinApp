@@ -7,17 +7,21 @@ import com.example.naville.kotlinmap.util.GPS
 import com.example.naville.kotlinmap.util.Geocoder
 import com.google.android.gms.location.places.AutocompleteFilter
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment
+import com.mapbox.android.core.location.LocationEngineProvider
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.constants.Style
 import com.mapbox.mapboxsdk.maps.MapView
+import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation
+import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute
 
 
-abstract class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var mapView: MapView
-//    private var mapboxNavigation: MapboxNavigation? = null
+    private var mapboxNavigation: MapboxNavigation? = null
     var searchOrigin: PlaceAutocompleteFragment? = null
     var searchDestination: PlaceAutocompleteFragment? = null
     private lateinit var originPoint: Point
@@ -31,11 +35,11 @@ abstract class MainActivity : AppCompatActivity() {
          * Gets the keys
          */
         Mapbox.getInstance(applicationContext, getString(R.string.mapboxKey))
-//        mapboxNavigation = MapboxNavigation(this, getString(R.string.mapboxKey))
+        mapboxNavigation = MapboxNavigation(this, getString(R.string.mapboxKey))
 
         /*
-* Calls GEOCODER Class to convert places
-*/
+         * Calls GEOCODER Class to convert places
+         */
         Geocoder.geocoding(this, GPS.currentPosition!!.latitude, GPS.currentPosition!!.longitude)
 
         /*
@@ -63,7 +67,8 @@ abstract class MainActivity : AppCompatActivity() {
                     it.uiSettings.setAllGesturesEnabled(true)
                     it.uiSettings.isZoomControlsEnabled
                     it.uiSettings.isZoomGesturesEnabled
-0                })
+                    it.addMarker(MarkerOptions().position(GPS.currentPosition))
+                })
 
         /*
          * Finding views by ID
@@ -87,11 +92,28 @@ abstract class MainActivity : AppCompatActivity() {
         /*
          * Creates lat lng points for navigation GPS mapbox
          */
-//        createPointForNavigation()
+        createPointForNavigation()
 
+        val builder: NavigationRoute.Builder = NavigationRoute.builder(this)
+                .accessToken(getString(R.string.mapboxKey))
+                .origin(originPoint)
+                .destination(destPoint)
+
+        builder.build()
+
+        val locationEngine = LocationEngineProvider(this).obtainBestLocationEngineAvailable()
+        mapboxNavigation!!.locationEngine = locationEngine
 
     }
 
+    private fun createPointForNavigation() {
+
+        originPoint = Point.fromLngLat(Geocoder.addressLatGeocoded!!, Geocoder.addressLngGeocoded!!)
+        destPoint = Point.fromLngLat(-46.5312937, -23.4665668)
+
+        println("Points: $originPoint $destPoint")
+
+    }
 
     /*
      * Setting up filters and configs inside place autocomplete fragment

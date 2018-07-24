@@ -20,7 +20,12 @@
             </intent-filter>
         </activity>
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/googlePlacesKey" />
+
         <activity android:name=".MainActivity"/>
+        <activity android:name=".HandleActivity" android:theme="@style/Fullscreen"/>
 
     </application>
 
