@@ -144,13 +144,14 @@ class MainActivity : AppCompatActivity() {
      */
     fun onChangingPosition(latLng: LatLng) {
 
-        markerMyLocation!!.position.latitude = latLng.latitude
-        markerMyLocation!!.position.longitude = latLng.longitude
+        if (markerMyLocation != null) {
+            mapBox!!.removeMarker(markerMyLocation!!)
+            markerMyLocation!!.position.latitude = latLng.latitude
+            markerMyLocation!!.position.longitude = latLng.longitude
 
+        }
         if (mapBox != null) {
-            if (markerMyLocation != null) {
-                mapBox!!.removeMarker(markerMyLocation!!)
-            }
+
             markerMyLocation = mapBox!!.addMarker(MarkerOptions()
                     .position(latLng)
                     .title("Sua localização!"))
@@ -246,7 +247,6 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     override fun onPlaceSelected(place: Place?) {
-                        println("Place (Success): $place")
                         selectedDest = place!!.address.toString()
                         println("Address destination: $selectedDest")
                         Geocoder.geocoding(this@MainActivity, place.latLng.latitude, place.latLng.longitude)
