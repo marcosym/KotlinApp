@@ -1,53 +1,52 @@
 package com.example.naville.kotlinmap
 
-import android.location.Location
+import android.os.AsyncTask
 import android.os.Bundle
+import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.widget.EditText
 import com.example.naville.kotlinmap.util.GPS
 import com.example.naville.kotlinmap.util.Geocoder
 import com.google.android.gms.common.api.Status
-import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.places.AutocompleteFilter
 import com.google.android.gms.location.places.Place
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment
 import com.google.android.gms.location.places.ui.PlaceSelectionListener
-import com.mapbox.android.core.location.LocationEngine
-import com.mapbox.android.core.location.LocationEngineProvider
-import com.mapbox.api.directions.v5.models.DirectionsResponse
-import com.mapbox.api.directions.v5.models.DirectionsRoute
-import com.mapbox.api.directions.v5.models.DirectionsWaypoint
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.constants.Style
+import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
-import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher
-import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions
+import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation
-import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
 
+
     private lateinit var mapView: MapView
     private var mapboxNavigation: MapboxNavigation? = null
+    var mapBox: MapboxMap? = null
+
     var searchOrigin: PlaceAutocompleteFragment? = null
     var searchDestination: PlaceAutocompleteFragment? = null
+
     private lateinit var originPoint: Point
     private lateinit var destPoint: Point
+
     private var selectedOrigin: String? = null
     private var selectedDest: String? = null
-
     private var selectedLatOrigin: Double? = null
     private var selectedLngOrigin: Double? = null
-
     private var selectedLatDest: Double? = null
     private var selectedLngDest: Double? = null
+
+    private var timerTask: TimerTask? = null
+    private var markerMyLocation: Marker? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,15 +81,20 @@ class MainActivity : AppCompatActivity() {
         /*
          * Open map
          */
-        mapView.getMapAsync(
-                {
-                    it.setStyle(Style.LIGHT)
-                    it.easeCamera(CameraUpdateFactory.newLatLngZoom(GPS.currentPosition!!, 16.0))
-                    it.uiSettings.setAllGesturesEnabled(true)
-                    it.uiSettings.isZoomControlsEnabled
-                    it.uiSettings.isZoomGesturesEnabled
-                    it.addMarker(MarkerOptions().position(GPS.currentPosition))
-                })
+        mapView.getMapAsync {
+
+            /*
+             * mapbox object receives it component
+             */
+
+            mapBox = it
+
+            mapBox!!.setStyle(Style.TRAFFIC_DAY)
+            mapBox!!.easeCamera(CameraUpdateFactory.newLatLngZoom(GPS.currentPosition!!, 16.0))
+            mapBox!!.uiSettings.setAllGesturesEnabled(true)
+            mapBox!!.uiSettings.isZoomControlsEnabled
+            mapBox!!.uiSettings.isZoomGesturesEnabled
+        }
 
         /*
          * Finding views by ID
@@ -103,29 +107,66 @@ class MainActivity : AppCompatActivity() {
         setConfigAutoComplete(searchOrigin, searchDestination)
 
         /*
-  * Init actions of Main Activity
-  */
+         * Init actions of Main Activity
+         */
         initActions()
 
     }
+
 
     /*
      * Init actions on Main Activity
      */
     private fun initActions() {
 
+        /*
+         * AsyncTask repeating- it clears and creates a new marker if position be changed
+         */
+        val handler = Handler()
+        val timer = Timer()
 
+        timerTask = object : TimerTask() {
+            override fun run() {
+                handler.post {
+                    try {
+                        onChangingPosition(GPS.currentPosition!!)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
+        timer.schedule(timerTask, 5, 1000)
     }
 
     /*
-     * Create 2 points origin and destination
+     * If users location change the new position will be added with a marker
      */
+    fun onChangingPosition(latLng: LatLng) {
+
+        markerMyLocation!!.position.latitude = latLng.latitude
+        markerMyLocation!!.position.longitude = latLng.longitude
+
+        if (mapBox != null) {
+            if (markerMyLocation != null) {
+                mapBox!!.removeMarker(markerMyLocation!!)
+            }
+            markerMyLocation = mapBox!!.addMarker(MarkerOptions()
+                    .position(latLng)
+                    .title("Sua localização!"))
+//            markerMyLocation = mapBox!!.addMarker(MarkerOptions().position(latLng))
+        }
+    }
+
+    /*
+    * Create 2 points origin and destination
+    */
     private fun createPointForNavigation() {
 
         originPoint = Point.fromLngLat(selectedLatOrigin!!, selectedLngOrigin!!)
         destPoint = Point.fromLngLat(selectedLatDest!!, selectedLngDest!!)
 
-        println("Points: origin - " + originPoint.latitude() + ":" + originPoint.longitude() + " destination - " + destPoint.latitude() + ":" + destPoint.longitude())
+        println("Points: origin = " + originPoint.latitude() + ":" + originPoint.longitude() + " destination = " + destPoint.latitude() + ":" + destPoint.longitude())
 
 //        NavigationRoute.builder(applicationContext)
 //                .accessToken(Mapbox.getAccessToken()!!)
@@ -140,13 +181,6 @@ class MainActivity : AppCompatActivity() {
 //            println("Navigation Listener: $it")
 //        }
 
-
-        val simulateRoute = true
-
-        val options : NavigationLauncherOptions = NavigationLauncherOptions.builder()
-                .shouldSimulateRoute(simulateRoute)
-                .build()
-        NavigationLauncher.startNavigation(this, options)
 
     }
 
@@ -250,11 +284,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-//    override fun onPause() {
-//        super.onPause()
-//        mapView.onPause()
-//    }
-
     override fun onStop() {
         super.onStop()
         mapView.onStop()
@@ -270,6 +299,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mapView.onDestroy()
+        timerTask!!.cancel()
     }
 
 }

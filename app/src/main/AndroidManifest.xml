@@ -25,7 +25,7 @@
             android:value="@string/googlePlacesKeyServer" />
 
         <activity android:name=".MainActivity"/>
-        <activity android:name=".HandleActivity" android:theme="@style/Fullscreen"/>
+        <activity android:name=".HandleActivity"/>
 
     </application>
 

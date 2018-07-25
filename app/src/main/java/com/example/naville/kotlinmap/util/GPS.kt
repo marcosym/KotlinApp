@@ -3,6 +3,7 @@ package com.example.naville.kotlinmap.util
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.util.Log
+import com.example.naville.kotlinmap.MainActivity
 import com.google.android.gms.location.*
 import com.mapbox.mapboxsdk.geometry.LatLng
 
@@ -38,6 +39,7 @@ class GPS {
                         override fun onLocationResult(locationResult: LocationResult?) {
                             for (location in locationResult!!.locations) {
                                 currentPosition = LatLng(location.latitude, location.longitude)
+
 
                                 Log.i("Current location: ", currentPosition.toString())
                             }

@@ -1,16 +1,21 @@
 package com.example.naville.kotlinmap.view
 
+import android.content.Context
 import android.content.Intent
+import android.location.LocationManager
 import android.os.Bundle
 import android.support.design.widget.TextInputEditText
 import android.support.v7.app.AppCompatActivity
 import android.widget.Button
 import android.widget.TextView
 import com.example.naville.kotlinmap.HandleActivity
-import com.example.naville.kotlinmap.MainActivity
 import com.example.naville.kotlinmap.R
 import com.example.naville.kotlinmap.util.Fonts
 import com.example.naville.kotlinmap.util.GPS
+import com.example.naville.kotlinmap.util.Permissions
+import com.example.naville.kotlinmap.util.Permissions.Companion.activated
+import com.example.naville.kotlinmap.util.Permissions.Companion.proceed
+import timber.log.Timber
 
 class LoginActivity : AppCompatActivity() {
 
@@ -18,21 +23,33 @@ class LoginActivity : AppCompatActivity() {
     var emailLabel: TextInputEditText? = null
     var passwordLabel: TextInputEditText? = null
     var btnProceed: Button? = null
+    private var locationManager: LocationManager? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+
         findViews()
         applyCustomFont()
+        initActions()
 
-//        LoginPres
+    }
 
+    private fun initActions() {
+
+        /*
+         * Button proceed action listener
+         */
         btnProceed!!.setOnClickListener {
-//            startActivity(Intent(this, MainActivity::class.java))
-            startActivity(Intent(this, HandleActivity::class.java))
-            finish()
+            if (!proceed) {
+                verifyGPSConditions()
+            } else {
+                startActivity(Intent(this, HandleActivity::class.java))
+                finish()
+            }
         }
 
     }
@@ -56,21 +73,31 @@ class LoginActivity : AppCompatActivity() {
         btnProceed = findViewById(R.id.btnProceed)
     }
 
-    override fun onStart() {
-        super.onStart()
+    /*
+     * Verify GPS conditions before start another activity
+     */
+    private fun verifyGPSConditions() {
 
         /*
 * Get permissions for location
 */
-//        Permissions.verifyGPS(this)
-
-        /*
+        if (!activated) {
+            assert(locationManager != null)
+            Permissions.verifyGPS(this, locationManager)
+        } else {
+            /*
 Class GPS initialized
  */
-        GPS.liveLocation(this)
+            GPS.liveLocation(this)
+        }
+    }
 
+    override fun onStart() {
+        super.onStart()
+        verifyGPSConditions()
 
     }
+
 
 }
 

@@ -11,18 +11,22 @@ class Permissions {
 
     companion object {
 
-        var activated = true //ativou boolean flag for gps enabled/disabled conditions
-        var locationManager : LocationManager? = null //locationManager handle with GPS condition, recognize if its off/on
+        var proceed = false
+        var activated = false //activated boolean flag for gps enabled/disabled conditions
+//        var locationManager : LocationManager? = null //locationManager handle with GPS condition, recognize if its off/on
 
         /*
          * Verify if GPS is activated
          */
-        fun verifyGPS(activity: Activity) {
+        fun verifyGPS(activity: Activity, locationManager: LocationManager?) {
             if (locationManager!!.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 activated = true
+                proceed = true
                 println("Verified: $activated")
+                GPS.liveLocation(activity)
             } else {
                 activated = false
+                proceed = false
                 println("Verified: $activated")
                 showGPSDisabledAlertToUser(activity)
             }
@@ -31,13 +35,13 @@ class Permissions {
         /*
          * Display message if GPS isn't activated
          */
-        fun showGPSDisabledAlertToUser(activity: Activity) {
+        private fun showGPSDisabledAlertToUser(activity: Activity) {
             var alertDialogBuilder: AlertDialog.Builder? = null
 
             if (alertDialogBuilder == null) {
 
                 alertDialogBuilder = AlertDialog.Builder(activity)
-                alertDialogBuilder.setMessage("Seu GPS está desativado... Gostaria de ativá-lo?")
+                alertDialogBuilder.setMessage("Esse aplicativo necessita do GPS para melhor performance. \n\nPor favor, pressione SIM para ativar o GPS!")
                         .setCancelable(false)
                         .setPositiveButton("Sim") { dialog, _ ->
                             val callGPSSettingIntent = Intent(
@@ -45,16 +49,21 @@ class Permissions {
                             activity.startActivity(callGPSSettingIntent)
                             dialog.dismiss()
 
-//                        LiveLocation.currentLocation(activity)
-//                        ToolboxGetLocation.getLastLocation(activity)
-//                        ToolboxGetLocation.getUpdatedLocation(activity)
+                            /*
+                             * Initialize live location
+                             */
+                            GPS.liveLocation(activity)
 
                             activated = true
+                            proceed = true
                             println("ShowAlert: $activated")
                         }
                 alertDialogBuilder.setNegativeButton("Não",
                         DialogInterface.OnClickListener { dialog, _ ->
                             activated = false
+                            proceed = false
+                            println("ShowAlert: $activated")
+
                             dialog.dismiss()
                         })
                 val alert = alertDialogBuilder.create()
