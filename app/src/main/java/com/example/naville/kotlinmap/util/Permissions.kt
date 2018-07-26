@@ -6,14 +6,14 @@ import android.content.Intent
 import android.location.LocationManager
 import android.provider.Settings
 import android.support.v7.app.AlertDialog
+import com.example.naville.kotlinmap.util.location.GPS
 
 class Permissions {
 
     companion object {
 
-        var proceed = false
+        var proceed = false // button proceed flag
         var activated = false //activated boolean flag for gps enabled/disabled conditions
-//        var locationManager : LocationManager? = null //locationManager handle with GPS condition, recognize if its off/on
 
         /*
          * Verify if GPS is activated

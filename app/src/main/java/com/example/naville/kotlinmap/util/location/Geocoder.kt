@@ -1,4 +1,4 @@
-package com.example.naville.kotlinmap.util
+package com.example.naville.kotlinmap.util.location
 
 import android.app.Activity
 import android.location.Geocoder

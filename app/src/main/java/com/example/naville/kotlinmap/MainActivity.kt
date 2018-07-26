@@ -1,12 +1,11 @@
 package com.example.naville.kotlinmap
 
-import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.widget.EditText
-import com.example.naville.kotlinmap.util.GPS
-import com.example.naville.kotlinmap.util.Geocoder
+import com.example.naville.kotlinmap.util.location.GPS
+import com.example.naville.kotlinmap.util.location.Geocoder
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.places.AutocompleteFilter
 import com.google.android.gms.location.places.Place
@@ -30,7 +29,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mapView: MapView
     private var mapboxNavigation: MapboxNavigation? = null
-    var mapBox: MapboxMap? = null
+    private var mapBox: MapboxMap? = null
 
     var searchOrigin: PlaceAutocompleteFragment? = null
     var searchDestination: PlaceAutocompleteFragment? = null
@@ -47,6 +46,8 @@ class MainActivity : AppCompatActivity() {
 
     private var timerTask: TimerTask? = null
     private var markerMyLocation: Marker? = null
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -144,6 +145,11 @@ class MainActivity : AppCompatActivity() {
      */
     fun onChangingPosition(latLng: LatLng) {
 
+        val latLngLastPos: LatLng?
+        latLngLastPos = LatLng(latLng)
+
+        println("Última posição $latLngLastPos")
+
         if (markerMyLocation != null) {
             mapBox!!.removeMarker(markerMyLocation!!)
             markerMyLocation!!.position.latitude = latLng.latitude
@@ -155,7 +161,8 @@ class MainActivity : AppCompatActivity() {
             markerMyLocation = mapBox!!.addMarker(MarkerOptions()
                     .position(latLng)
                     .title("Sua localização!"))
-//            markerMyLocation = mapBox!!.addMarker(MarkerOptions().position(latLng))
+            Geocoder.geocoding(this, latLng.latitude, latLng.longitude)
+            searchOrigin!!.setText(Geocoder.addressThoroughfare)
         }
     }
 

@@ -1,7 +1,7 @@
 package com.example.naville.kotlinmap.view
 
-import android.content.Context
-import android.content.Intent
+import android.app.Activity
+import android.content.*
 import android.location.LocationManager
 import android.os.Bundle
 import android.support.design.widget.TextInputEditText
@@ -10,12 +10,16 @@ import android.widget.Button
 import android.widget.TextView
 import com.example.naville.kotlinmap.HandleActivity
 import com.example.naville.kotlinmap.R
-import com.example.naville.kotlinmap.util.Fonts
-import com.example.naville.kotlinmap.util.GPS
-import com.example.naville.kotlinmap.util.Permissions
-import com.example.naville.kotlinmap.util.Permissions.Companion.activated
 import com.example.naville.kotlinmap.util.Permissions.Companion.proceed
-import timber.log.Timber
+import com.example.naville.kotlinmap.util.SettingsClient
+import com.example.naville.kotlinmap.util.broadcast.Broadcast
+import com.example.naville.kotlinmap.util.fonts.Fonts
+import com.example.naville.kotlinmap.util.location.GPS
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
+import com.google.android.gms.tasks.Task
+
 
 class LoginActivity : AppCompatActivity() {
 
@@ -23,7 +27,9 @@ class LoginActivity : AppCompatActivity() {
     var emailLabel: TextInputEditText? = null
     var passwordLabel: TextInputEditText? = null
     var btnProceed: Button? = null
+
     private var locationManager: LocationManager? = null
+    private var broadcast: Broadcast? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +37,8 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+        broadcast = Broadcast(this)
+
 
         findViews()
         applyCustomFont()
@@ -44,12 +52,8 @@ class LoginActivity : AppCompatActivity() {
          * Button proceed action listener
          */
         btnProceed!!.setOnClickListener {
-            if (!proceed) {
-                verifyGPSConditions()
-            } else {
-                startActivity(Intent(this, HandleActivity::class.java))
-                finish()
-            }
+            startActivity(Intent(this, HandleActivity::class.java))
+            finish()
         }
 
     }
@@ -81,23 +85,71 @@ class LoginActivity : AppCompatActivity() {
         /*
 * Get permissions for location
 */
-        if (!activated) {
-            assert(locationManager != null)
-            Permissions.verifyGPS(this, locationManager)
+        if (locationManager!!.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            GPS.liveLocation(this)
         } else {
             /*
-Class GPS initialized
- */
-            GPS.liveLocation(this)
+   * Initialize broadcast: GPS
+   */
+            broadcast!!.initBroadcastGPS()
+            broadcast!!.startBroadcast()
         }
+
+
+        //        if (!activated) {
+//            assert(locationManager != null)
+//            Permissions.verifyGPS(this, locationManager)
+//        } else {
+//            /*
+//Class GPS initialized
+// */
+//            GPS.liveLocation(this)
+//        }
+
+    }
+
+
+    /*
+     * Activity on Result handle intent data
+     */
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+//        val states: LocationSettingsStates = LocationSettingsStates.fromIntent(data)
+//
+//        if (states.isGpsPresent) {
+//            GPS.liveLocation(this)
+//            proceed = true
+//        }
+
+        GPS.liveLocation(this)
+        if (requestCode == SettingsClient.REQUEST_CHECK_SETTINGS) {
+            Activity.RESULT_OK
+        } else {
+            Activity.RESULT_CANCELED
+        }
+
+        broadcast!!.openDialog = true
     }
 
     override fun onStart() {
         super.onStart()
         verifyGPSConditions()
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+
+        /*
+         * Destroy broadcast receiver
+         */
+        broadcast!!.destroyBroadcast()
     }
 
 
 }
+
+
+
+
 

@@ -1,4 +1,4 @@
-package com.example.naville.kotlinmap.util
+package com.example.naville.kotlinmap.util.fonts
 
 import android.app.Activity
 import android.graphics.Typeface

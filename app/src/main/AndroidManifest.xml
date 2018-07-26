@@ -27,6 +27,7 @@
         <activity android:name=".MainActivity"/>
         <activity android:name=".HandleActivity"/>
 
+
     </application>
 
 </manifest>
