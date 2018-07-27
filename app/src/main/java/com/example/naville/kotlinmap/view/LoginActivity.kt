@@ -1,7 +1,8 @@
 package com.example.naville.kotlinmap.view
 
 import android.app.Activity
-import android.content.*
+import android.content.Context
+import android.content.Intent
 import android.location.LocationManager
 import android.os.Bundle
 import android.support.design.widget.TextInputEditText
@@ -10,15 +11,10 @@ import android.widget.Button
 import android.widget.TextView
 import com.example.naville.kotlinmap.HandleActivity
 import com.example.naville.kotlinmap.R
-import com.example.naville.kotlinmap.util.Permissions.Companion.proceed
 import com.example.naville.kotlinmap.util.SettingsClient
 import com.example.naville.kotlinmap.util.broadcast.Broadcast
 import com.example.naville.kotlinmap.util.fonts.Fonts
-import com.example.naville.kotlinmap.util.location.GPS
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.*
-import com.google.android.gms.tasks.Task
+import com.example.naville.kotlinmap.util.geo.location.GPS
 
 
 class LoginActivity : AppCompatActivity() {
@@ -38,7 +34,6 @@ class LoginActivity : AppCompatActivity() {
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as? LocationManager
         broadcast = Broadcast(this)
-
 
         findViews()
         applyCustomFont()

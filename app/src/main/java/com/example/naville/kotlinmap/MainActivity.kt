@@ -1,16 +1,27 @@
 package com.example.naville.kotlinmap
 
+import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.widget.EditText
-import com.example.naville.kotlinmap.util.location.GPS
-import com.example.naville.kotlinmap.util.location.Geocoder
+import com.example.naville.kotlinmap.util.geo.location.GPS
+import com.example.naville.kotlinmap.util.geo.location.Geocoder
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.places.AutocompleteFilter
 import com.google.android.gms.location.places.Place
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment
 import com.google.android.gms.location.places.ui.PlaceSelectionListener
+import com.mapbox.android.core.location.LocationEngine
+import com.mapbox.android.core.location.LocationEngineListener
+import com.mapbox.android.core.location.LocationEnginePriority
+import com.mapbox.android.core.location.LocationEngineProvider
+import com.mapbox.android.core.permissions.PermissionsListener
+import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.api.directions.v5.models.DirectionsResponse
+import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.Marker
@@ -20,16 +31,33 @@ import com.mapbox.mapboxsdk.constants.Style
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
+import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin
+import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions
+import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation
+import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import timber.log.Timber
 import java.util.*
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineListener {
 
+    private var permissionsManager: PermissionsManager? = null
+    private var locationPlugin: LocationLayerPlugin? = null
+    private var locationEngine: LocationEngine? = null
+    private var originLocation: Location? = null
+
+    private var currentRoute: DirectionsRoute? = null
+    private var navigationMapRoute: NavigationMapRoute? = null
 
     private lateinit var mapView: MapView
     private var mapboxNavigation: MapboxNavigation? = null
-    private var mapBox: MapboxMap? = null
+    private lateinit var mapBox: MapboxMap
 
     var searchOrigin: PlaceAutocompleteFragment? = null
     var searchDestination: PlaceAutocompleteFragment? = null
@@ -46,8 +74,6 @@ class MainActivity : AppCompatActivity() {
 
     private var timerTask: TimerTask? = null
     private var markerMyLocation: Marker? = null
-
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,14 +113,31 @@ class MainActivity : AppCompatActivity() {
             /*
              * mapbox object receives it component
              */
-
             mapBox = it
 
-            mapBox!!.setStyle(Style.TRAFFIC_DAY)
-            mapBox!!.easeCamera(CameraUpdateFactory.newLatLngZoom(GPS.currentPosition!!, 16.0))
-            mapBox!!.uiSettings.setAllGesturesEnabled(true)
-            mapBox!!.uiSettings.isZoomControlsEnabled
-            mapBox!!.uiSettings.isZoomGesturesEnabled
+            /*
+             * Enabling the location plugin
+             */
+            enableLocationPlugin()
+
+            mapBox.setStyle(Style.LIGHT)
+
+
+            val cal = Calendar.getInstance()
+
+            val hourOfDay = cal.get(Calendar.HOUR_OF_DAY)
+            val minutes = cal.get(Calendar.MINUTE)
+            val seconds = cal.get(Calendar.SECOND)
+
+            if (hourOfDay == 6 && minutes == 0 && seconds == 0) {
+                mapView.setStyleUrl(Style.LIGHT)
+            } else if (hourOfDay == 18 && minutes == 0 && seconds == 0) {
+                mapView.setStyleUrl(Style.DARK)
+            }
+            mapBox.easeCamera(CameraUpdateFactory.newLatLngZoom(GPS.currentPosition!!, 16.0))
+            mapBox.uiSettings.setAllGesturesEnabled(true)
+            mapBox.uiSettings.isZoomControlsEnabled
+            mapBox.uiSettings.isZoomGesturesEnabled
         }
 
         /*
@@ -114,11 +157,43 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun enableLocationPlugin() {
+
+        if (PermissionsManager.areLocationPermissionsGranted(this)) {
+            initializeLocationEngine()
+
+            locationPlugin = LocationLayerPlugin(mapView, mapBox, locationEngine)
+            locationPlugin!!.renderMode = RenderMode.COMPASS
+        } else {
+            permissionsManager = PermissionsManager(this)
+            permissionsManager!!.requestLocationPermissions(this)
+
+        }
+
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun initializeLocationEngine() {
+        val locationEngineProvider = LocationEngineProvider(this)
+        locationEngine = locationEngineProvider.obtainBestLocationEngineAvailable()
+        locationEngine!!.priority = LocationEnginePriority.HIGH_ACCURACY
+        locationEngine!!.activate()
+
+        val lastLocation: Location = locationEngine!!.lastLocation
+        originLocation = lastLocation
+        setCameraPosition(lastLocation)
+    }
+
+    private fun setCameraPosition(location: Location) {
+        mapBox.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                LatLng(location.latitude, location.longitude), 13.0))
+    }
 
     /*
      * Init actions on Main Activity
      */
     private fun initActions() {
+
 
         /*
          * AsyncTask repeating- it clears and creates a new marker if position be changed
@@ -130,7 +205,12 @@ class MainActivity : AppCompatActivity() {
             override fun run() {
                 handler.post {
                     try {
-                        onChangingPosition(GPS.currentPosition!!)
+                        /*
+                         * Handle the map style according to the current time
+                         */
+                        handlingMapStyle()
+
+//                        onChangingPosition(GPS.currentPosition!!)
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
@@ -138,6 +218,28 @@ class MainActivity : AppCompatActivity() {
             }
         }
         timer.schedule(timerTask, 5, 1000)
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    /*
+     * It changes the map style according the time - 6am - DAY STYLE / 6pm - NIGHT STYLE
+     */
+    private fun handlingMapStyle() {
+
+        val cal = Calendar.getInstance()
+
+        val hourOfDay = cal.get(Calendar.HOUR_OF_DAY)
+        val minutes = cal.get(Calendar.MINUTE)
+        val seconds = cal.get(Calendar.SECOND)
+
+        println("Horário: $hourOfDay:$minutes:$seconds")
+
+        if (hourOfDay == 6 && minutes == 0 && seconds == 0) {
+            mapView.setStyleUrl(Style.LIGHT)
+        } else if (hourOfDay == 18 && minutes == 0 && seconds == 0) {
+            mapView.setStyleUrl(Style.DARK)
+        }
+
     }
 
     /*
@@ -151,19 +253,17 @@ class MainActivity : AppCompatActivity() {
         println("Última posição $latLngLastPos")
 
         if (markerMyLocation != null) {
-            mapBox!!.removeMarker(markerMyLocation!!)
+            mapBox.removeMarker(markerMyLocation!!)
             markerMyLocation!!.position.latitude = latLng.latitude
             markerMyLocation!!.position.longitude = latLng.longitude
 
         }
-        if (mapBox != null) {
 
-            markerMyLocation = mapBox!!.addMarker(MarkerOptions()
-                    .position(latLng)
-                    .title("Sua localização!"))
-            Geocoder.geocoding(this, latLng.latitude, latLng.longitude)
-            searchOrigin!!.setText(Geocoder.addressThoroughfare)
-        }
+        markerMyLocation = mapBox.addMarker(MarkerOptions()
+                .position(latLng)
+                .title("Sua localização!"))
+        Geocoder.geocoding(this, latLng.latitude, latLng.longitude)
+        searchOrigin!!.setText(Geocoder.addressThoroughfare)
     }
 
     /*
@@ -171,24 +271,16 @@ class MainActivity : AppCompatActivity() {
     */
     private fun createPointForNavigation() {
 
-        originPoint = Point.fromLngLat(selectedLatOrigin!!, selectedLngOrigin!!)
-        destPoint = Point.fromLngLat(selectedLatDest!!, selectedLngDest!!)
+//        originPoint = Point.fromLngLat(selectedLatOrigin!!, selectedLngOrigin!!)
+//        destPoint = Point.fromLngLat(selectedLatDest!!, selectedLngDest!!)
 
-        println("Points: origin = " + originPoint.latitude() + ":" + originPoint.longitude() + " destination = " + destPoint.latitude() + ":" + destPoint.longitude())
+        originPoint = Point.fromLngLat(-46.5287985, -23.4675446)
+        destPoint = Point.fromLngLat(-46.5312937,-23.4665668)
 
-//        NavigationRoute.builder(applicationContext)
-//                .accessToken(Mapbox.getAccessToken()!!)
-//                .origin(originPoint)
-//                .destination(destPoint)
-//                .build()
-//
-//        val location: LocationEngine = LocationEngineProvider(applicationContext).obtainBestLocationEngineAvailable()
-//        mapboxNavigation!!.locationEngine = location
-//
-//        mapboxNavigation!!.addNavigationEventListener {
-//            println("Navigation Listener: $it")
-//        }
+        println("Points: origin = " + originPoint.latitude() + ":" + originPoint.longitude()
+                + " destination = " + destPoint.latitude() + ":" + destPoint.longitude())
 
+        getRoute(originPoint, destPoint)
 
     }
 
@@ -233,7 +325,6 @@ class MainActivity : AppCompatActivity() {
          * PlaceautocompleteFragment - DESTINATION
          *
          */
-
         origin.setOnPlaceSelectedListener(
                 object : PlaceSelectionListener {
                     override fun onError(error: Status?) {
@@ -284,15 +375,32 @@ class MainActivity : AppCompatActivity() {
     /*
     Android lifecycle
      */
+    @SuppressLint("MissingPermission")
     override fun onStart() {
         super.onStart()
-        mapView.onStart()
 
+        if (locationEngine != null) {
+            locationEngine!!.requestLocationUpdates()
+        }
+        if (locationPlugin != null) {
+            locationPlugin!!.onStart()
+        }
+
+        mapView.onStart()
 
     }
 
     override fun onStop() {
         super.onStop()
+
+        if (locationEngine != null) {
+            locationEngine!!.removeLocationUpdates()
+        }
+        if (locationPlugin != null) {
+            locationPlugin!!.onStop()
+        }
+
+
         mapView.onStop()
     }
 
@@ -306,7 +414,94 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mapView.onDestroy()
-        timerTask!!.cancel()
+
+        if (locationEngine != null) {
+            locationEngine!!.deactivate()
+        }
+
+
     }
 
+    override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onPermissionResult(granted: Boolean) {
+        if (granted) {
+            enableLocationPlugin()
+        } else {
+            finish()
+        }
+    }
+
+    override fun onLocationChanged(location: Location?) {
+        if (location != null) {
+            originLocation = location
+            setCameraPosition(location)
+            locationEngine!!.removeLocationEngineListener(this)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    override fun onConnected() {
+        locationEngine!!.requestLocationUpdates()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        permissionsManager!!.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    private fun getRoute(origin: Point, destination: Point) {
+
+        Timber.d("ENTROU")
+
+        NavigationRoute.builder(this)
+                .accessToken(getString(R.string.mapboxKey))
+                .origin(origin)
+                .destination(destination)
+                .build()
+                .getRoute(object : Callback<DirectionsResponse> {
+
+                    override fun onFailure(call: Call<DirectionsResponse>?, t: Throwable?) {
+                        Timber.e("DirectionsResponse Error: ${t!!.localizedMessage}")
+                    }
+
+                    override fun onResponse(call: Call<DirectionsResponse>?, response: Response<DirectionsResponse>?) {
+                        // You can get the generic HTTP info about the response
+                        Timber.d("Response code: ${response!!.code()}")
+
+                        if (response.body() == null) {
+                            Timber.e("No routes found, make sure you set the right user and access token.")
+                            return
+                        } else if (response.body()!!.routes().size < 1) {
+                            Timber.e("No routes found")
+                            return
+                        }
+
+                        currentRoute = response.body()!!.routes()[0]
+
+                        // Draw the route on the map
+                        if (navigationMapRoute != null) {
+                            navigationMapRoute!!.removeRoute()
+                        } else {
+                            navigationMapRoute = NavigationMapRoute(null, mapView, mapBox, R.style.NavigationMapRoute)
+                        }
+                        navigationMapRoute!!.addRoute(currentRoute)
+                    }
+                })
+
+        val handler = Handler()
+        handler.postDelayed({
+
+            val options: NavigationLauncherOptions = NavigationLauncherOptions.builder()
+                    .directionsRoute(currentRoute)
+                    .shouldSimulateRoute(true)
+                    .build()
+
+            // Call this method with Context from within an Activity
+            NavigationLauncher.startNavigation(this, options)
+
+        }, 3000)
+
+    }
 }

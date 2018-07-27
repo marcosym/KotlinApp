@@ -1,4 +1,4 @@
-package com.example.naville.kotlinmap.util.location
+package com.example.naville.kotlinmap.util.geo.location
 
 import android.app.Activity
 import android.location.Geocoder
@@ -29,7 +29,7 @@ class Geocoder {
         private fun reverse(activity: Activity) {
 
             val geocoder = Geocoder(activity, Locale.getDefault())
-            val address = geocoder.getFromLocationName(addressThoroughfare, 1)
+            val address = geocoder.getFromLocationName(addressThoroughfare!!, 1)
 
             if (address != null) {
                 addressLatGeocoded = address[0].latitude

@@ -2,6 +2,7 @@ package com.example.naville.kotlinmap.util
 
 import android.app.Activity
 import android.content.IntentSender
+import com.example.naville.kotlinmap.util.geo.location.GPS
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
@@ -32,6 +33,8 @@ class SettingsClient {
             result!!.addOnCompleteListener {
                 try {
                     val response = it.getResult(ApiException::class.java)
+                    GPS.liveLocation(activity)
+
                     print("Response: $response")
                 } catch (exception: ApiException) {
                     when (exception.statusCode) {

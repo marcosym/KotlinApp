@@ -1,9 +1,7 @@
-package com.example.naville.kotlinmap.util.location
+package com.example.naville.kotlinmap.util.geo.location
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
-import android.util.Log
 import com.google.android.gms.location.*
 import com.mapbox.mapboxsdk.geometry.LatLng
 

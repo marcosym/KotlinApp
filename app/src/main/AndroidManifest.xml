@@ -27,6 +27,13 @@
         <activity android:name=".MainActivity"/>
         <activity android:name=".HandleActivity"/>
 
+        <receiver android:name=".util.broadcast.BroadcastBoot">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.intent.action.PROVIDER_CHANGED"/>
+            </intent-filter>
+
+        </receiver>
 
     </application>
 
