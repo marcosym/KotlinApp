@@ -9,12 +9,14 @@ import android.support.design.widget.TextInputEditText
 import android.support.v7.app.AppCompatActivity
 import android.widget.Button
 import android.widget.TextView
+import com.cunoraz.gifview.library.GifView
 import com.example.naville.kotlinmap.HandleActivity
 import com.example.naville.kotlinmap.R
 import com.example.naville.kotlinmap.util.SettingsClient
 import com.example.naville.kotlinmap.util.broadcast.Broadcast
 import com.example.naville.kotlinmap.util.fonts.Fonts
 import com.example.naville.kotlinmap.util.geo.location.GPS
+import pl.droidsonroids.gif.GifDrawable
 
 
 class LoginActivity : AppCompatActivity() {
@@ -23,6 +25,7 @@ class LoginActivity : AppCompatActivity() {
     var emailLabel: TextInputEditText? = null
     var passwordLabel: TextInputEditText? = null
     var btnProceed: Button? = null
+    private var gifBackground: GifDrawable? = null
 
     private var locationManager: LocationManager? = null
     private var broadcast: Broadcast? = null
@@ -31,6 +34,7 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as? LocationManager
         broadcast = Broadcast(this)
@@ -50,6 +54,8 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, HandleActivity::class.java))
             finish()
         }
+
+
 
     }
 
@@ -102,7 +108,6 @@ class LoginActivity : AppCompatActivity() {
 //        }
 
     }
-
 
     /*
      * Activity on Result handle intent data

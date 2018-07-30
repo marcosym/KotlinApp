@@ -115,10 +115,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
              */
             mapBox = it
 
-            /*
-             * Enabling the location plugin
-             */
-            enableLocationPlugin()
 
             mapBox.setStyle(Style.LIGHT)
 
@@ -129,15 +125,17 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
             val minutes = cal.get(Calendar.MINUTE)
             val seconds = cal.get(Calendar.SECOND)
 
-            if (hourOfDay == 6 && minutes == 0 && seconds == 0) {
-                mapView.setStyleUrl(Style.LIGHT)
-            } else if (hourOfDay == 18 && minutes == 0 && seconds == 0) {
-                mapView.setStyleUrl(Style.DARK)
-            }
-            mapBox.easeCamera(CameraUpdateFactory.newLatLngZoom(GPS.currentPosition!!, 16.0))
+            mapBox.animateCamera(CameraUpdateFactory.newLatLngZoom(GPS.currentPosition!!, 16.0))
             mapBox.uiSettings.setAllGesturesEnabled(true)
             mapBox.uiSettings.isZoomControlsEnabled
             mapBox.uiSettings.isZoomGesturesEnabled
+
+            /*
+             * Enabling the location plugin
+             */
+            enableLocationPlugin()
+
+
         }
 
         /*
@@ -275,7 +273,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, LocationEngineLis
 //        destPoint = Point.fromLngLat(selectedLatDest!!, selectedLngDest!!)
 
         originPoint = Point.fromLngLat(-46.5287985, -23.4675446)
-        destPoint = Point.fromLngLat(-46.5312937,-23.4665668)
+        destPoint = Point.fromLngLat(-46.5312937, -23.4665668)
 
         println("Points: origin = " + originPoint.latitude() + ":" + originPoint.longitude()
                 + " destination = " + destPoint.latitude() + ":" + destPoint.longitude())

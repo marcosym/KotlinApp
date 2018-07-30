@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@drawable/background_login"
     android:layout_height="match_parent">
+
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/background_gif"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/background_street_gif7" />
 
 
     <android.support.v7.widget.CardView
         android:layout_width="0dp"
-        android:layout_height="300dp"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
         android:layout_marginEnd="32dp"
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
-        app:cardBackgroundColor="#90000000"
+        app:cardBackgroundColor="#99FFFFFF"
         app:cardCornerRadius="10dp"
         app:cardElevation="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -35,7 +41,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:text="Sign in"
-                android:textColor="#FFFFFF"
+                android:textColor="#810f09"
                 android:textSize="25sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -46,7 +52,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:textColorHint="#FFF"
+                android:textColorHint="#000000"
                 app:layout_constraintEnd_toEndOf="@+id/signInLabel"
                 app:layout_constraintStart_toStartOf="@+id/signInLabel"
                 app:layout_constraintTop_toBottomOf="@+id/signInLabel">
@@ -58,8 +64,8 @@
                     android:hint="Email"
                     android:inputType="textWebEmailAddress"
                     android:maxLines="1"
-                    android:textColor="#FFFFFF"
-                    android:textColorHint="#FFFFFF" />
+                    android:textColor="#810f09"
+                    android:textColorHint="#000000" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -67,7 +73,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textColorHint="#FFF"
+                android:textColorHint="#000000"
                 app:layout_constraintEnd_toEndOf="@+id/layoutEmail"
                 app:layout_constraintStart_toStartOf="@+id/layoutEmail"
                 app:layout_constraintTop_toBottomOf="@+id/layoutEmail">
@@ -79,23 +85,52 @@
                     android:hint="Password"
                     android:inputType="textPassword"
                     android:maxLines="1"
-                    android:textColor="#FFFFFF"
-                    android:textColorHint="#FFFFFF" />
+                    android:textColor="#810f09"
+                    android:textColorHint="#000000" />
             </android.support.design.widget.TextInputLayout>
 
             <Button
                 android:id="@+id/btnProceed"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
+                android:background="@drawable/custom_btn_proceed"
                 android:text="@string/proceed"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="@+id/layoutPassword"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/layoutPassword"
                 app:layout_constraintTop_toBottomOf="@+id/layoutPassword" />
+
+            <TextView
+                android:id="@+id/labelRegister"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:text="Not registered?"
+                android:textColor="#000000"
+                android:textSize="15sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/btnProceed"
+                app:layout_constraintTop_toBottomOf="@+id/btnProceed" />
+
+            <TextView
+                android:id="@+id/signUp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="SIGN UP"
+                android:textColor="#810f09"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="@+id/labelRegister"
+                app:layout_constraintEnd_toEndOf="@+id/btnProceed"
+                app:layout_constraintStart_toEndOf="@+id/labelRegister"
+                app:layout_constraintTop_toTopOf="@+id/labelRegister" />
 
 
         </android.support.constraint.ConstraintLayout>

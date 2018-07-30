@@ -48,6 +48,8 @@ dependencies {
     implementation 'com.mapbox.mapboxsdk:mapbox-android-navigation:0.16.0'
     implementation 'com.jakewharton:butterknife:8.8.1'
     implementation 'com.airbnb.android:lottie:2.5.5'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.15'
+    implementation 'com.github.Cutta:GifView:1.1'
 
     implementation ('com.mapbox.mapboxsdk:mapbox-android-navigation-ui:0.16.0') {
         transitive = true
