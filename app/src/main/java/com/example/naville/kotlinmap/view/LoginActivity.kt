@@ -3,8 +3,10 @@ package com.example.naville.kotlinmap.view
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.AnimationDrawable
 import android.location.LocationManager
 import android.os.Bundle
+import android.support.constraint.ConstraintLayout
 import android.support.design.widget.TextInputEditText
 import android.support.v7.app.AppCompatActivity
 import android.widget.Button
@@ -24,7 +26,9 @@ class LoginActivity : AppCompatActivity() {
     var emailLabel: TextInputEditText? = null
     var passwordLabel: TextInputEditText? = null
     var btnProceed: Button? = null
-    private var gifBackground: GifDrawable? = null
+    var rootConstraintLayout: ConstraintLayout? = null
+//    var animationDrawable : AnimationDrawable? = null
+//    private var gifBackground: GifDrawable? = null
 
     private var locationManager: LocationManager? = null
     private var broadcast: Broadcast? = null
@@ -32,7 +36,7 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        setContentView(R.layout.activity_login2)
 
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as? LocationManager
@@ -41,6 +45,15 @@ class LoginActivity : AppCompatActivity() {
         findViews()
         applyCustomFont()
         initActions()
+
+
+        /*
+         * Animation drawable doing the animation in the background
+         */
+//        animationDrawable = rootConstraintLayout!!.background as AnimationDrawable
+//        animationDrawable!!.setEnterFadeDuration(2000)
+//        animationDrawable!!.setExitFadeDuration(4000)
+//        animationDrawable!!.start()
 
     }
 
@@ -53,8 +66,6 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, HandleActivity::class.java))
             finish()
         }
-
-
 
     }
 
@@ -75,6 +86,7 @@ class LoginActivity : AppCompatActivity() {
         emailLabel = findViewById(R.id.emailLabel)
         passwordLabel = findViewById(R.id.passwordLabel)
         btnProceed = findViewById(R.id.btnProceed)
+//        rootConstraintLayout = findViewById(R.id.rootConstraintLayout)
     }
 
     /*
