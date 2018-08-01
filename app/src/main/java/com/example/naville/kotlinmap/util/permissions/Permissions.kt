@@ -1,4 +1,4 @@
-package com.example.naville.kotlinmap.util
+package com.example.naville.kotlinmap.util.permissions
 
 import android.app.Activity
 import android.content.DialogInterface

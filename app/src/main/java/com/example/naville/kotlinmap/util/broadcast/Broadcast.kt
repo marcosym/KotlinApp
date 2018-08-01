@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.location.LocationManager
-import com.example.naville.kotlinmap.util.SettingsClient.Companion.settingsClientConfig
+import com.example.naville.kotlinmap.util.permissions.SettingsClient.Companion.settingsClientConfig
 import com.example.naville.kotlinmap.util.geo.location.GPS
 
 data class Broadcast(val activity: Activity) {

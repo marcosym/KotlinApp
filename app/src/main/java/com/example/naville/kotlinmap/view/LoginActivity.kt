@@ -9,10 +9,9 @@ import android.support.design.widget.TextInputEditText
 import android.support.v7.app.AppCompatActivity
 import android.widget.Button
 import android.widget.TextView
-import com.cunoraz.gifview.library.GifView
 import com.example.naville.kotlinmap.HandleActivity
 import com.example.naville.kotlinmap.R
-import com.example.naville.kotlinmap.util.SettingsClient
+import com.example.naville.kotlinmap.util.permissions.SettingsClient
 import com.example.naville.kotlinmap.util.broadcast.Broadcast
 import com.example.naville.kotlinmap.util.fonts.Fonts
 import com.example.naville.kotlinmap.util.geo.location.GPS
